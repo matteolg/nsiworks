@@ -1,0 +1,22 @@
+import random
+import math
+
+a = random.randint(1, 12)
+b = random.randint(-12, 12)
+c = random.randint(-20, 20)
+print(a, "xcarré", b, "x +", c)
+determ = ((b**2) - (4*a*c))
+print("Le déterminant est :", determ)
+if determ > 0:
+    print("Il est donc positif")
+    calcul = (-b-math.sqrt(determ)/(2*a))
+    print("x1 = ",calcul)
+    calcul2 = (-b+math.sqrt(determ)/(2*a))
+    print("x2 =", calcul2)
+elif determ < 0:
+    print("Il est donc négatif, il n'y a pas de solution")
+elif determ == 0:
+    print("Le déterminant est 0, il y a donc une seule solution")
+    result = (-b/(2*a))
+    print(result)
+    
