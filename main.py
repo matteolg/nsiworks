@@ -1,4 +1,3 @@
-
 from smtplib import OLDSTYLE_AUTH
 from tkinter import *
 from random import *
@@ -20,24 +19,37 @@ notenoughmoney = Label(window, text="monnaie insuffisante !", font= ("Arial", 20
 mairie = PhotoImage(file='Mairie.png').subsample(4)
 bonhomme = PhotoImage(file='Stick.png').subsample(15)
 housepicture = PhotoImage(file='House.png').subsample(15)
+usine = PhotoImage(file='Usine.png').subsample(15)
 moneyvalue = 0
 moneydisplay = Label(window, text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
 old_x, old_y = 0, 0
+revenu = 500
+price = 5000
 
 
 def clickerf():
     global moneyvalue
-    moneyvalue += 50
+    global revenu
+    moneyvalue += revenu
     moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
     moneydisplay.place(x=850, y=0)
-
+    
 
 def clic(event):
+    
     global old_x, old_y
     old_x = event.x
     old_y = event.y
     canvasmaison.place(x=event.x, y=event.y)
     canvasmaison.create_image(25, 22, image=housepicture)
+    window.unbind("<Button-1>")
+    
+def clic_factory(event):
+    global old_x, old_y
+    old_x = event.x
+    old_y = event.y
+    canvasmaison.place(x=event.x, y=event.y)
+    canvasmaison.create_image(25, 22, image=usine)
     window.unbind("<Button-1>")
 
 def destroytext():
@@ -45,8 +57,15 @@ def destroytext():
 
 def cooldown():
     global moneyvalue
-    moneyvalue+=60
+    moneyvalue+=150
     moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
+    moneydisplay.after(3000, cooldown)
+    
+def cooldownusine():
+    global moneyvalue
+    moneyvalue+=250
+    moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
+    moneydisplay.after(5000, cooldownusine)
 
 def house():
     global moneyvalue
@@ -56,13 +75,47 @@ def house():
 
     elif moneyvalue >= 3000: 
         window.bind("<Button-1>", clic)
+        
         moneyvalue -= 3000
         moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
 
         
         moneydisplay.after(3000, cooldown)
         
+def factory():
+    count2 = 0
+    global moneyvalue
+    if moneyvalue < 10000:    
+        notenoughmoney.place(x=425, y=275)
+        notenoughmoney.after(2000, destroytext)
+
+    elif moneyvalue >= 10000:
+
+        window.bind("<Button-1>", clic_factory)
+
+        moneyvalue -= 10000
+        moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
+
         
+        moneydisplay.after(3000, cooldownusine)
+def ameliorer():
+    global price
+    global moneyvalue
+    global revenu
+    if moneyvalue < price:    
+        notenoughmoney.place(x=425, y=275)
+        notenoughmoney.after(2000, destroytext)
+
+    elif moneyvalue >= price:
+        if price == 50*5000+35/100*5000:
+            levelup.destroy()
+        moneyvalue -= price
+        revenu = revenu+20/100*revenu
+        revenu = int(revenu)
+        price = price+35/100*price
+        price = int(price)
+        moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
+        levelup['text'] = "Améliorer ("+str(price)+"$)"      
 
 def game_start():
     global bonhomme
@@ -78,10 +131,15 @@ def game_start():
     canvas.create_image(37, 37, image=bonhomme)
     clicker = Button(window, text="Make money", command= clickerf)
     clicker.place(x=500, y=345)
+    
+    levelup.place(x=500, y=375)
     maison = Button(window, text="Placer une maison (3000$)", command=house)
     maison.place(x=920, y=690)
+    usinebutton = Button(window, text="Placer l'usine (10 000$)", command=factory)
+    usinebutton.place(x=700, y=690)
     
 
+levelup = Button(window, text="Améliorer ("+str(price)+"$)", command=ameliorer)
 
 
 frame = Frame(window, bg='#2978E3', bd=10, relief=SUNKEN)
