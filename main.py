@@ -3,6 +3,7 @@ from tkinter import *
 from random import *
 from sys import *
 from time import *
+from turtle import window_height, window_width
 
 # Lignes nécéssaires au lancement du programme :
 window = Tk()
@@ -11,21 +12,54 @@ window.geometry("1080x720")
 window.minsize(480, 360)
 window.config(background = '#2978E3')
 
-canvas = Canvas(window, width = 70, height = 60, bg='white')
+canvas = Canvas(window, width=window.winfo_reqwidth(), height=360, bg='white')
 canvasmairie = Canvas(window, width=70, height=60, bg='white')
 canvasmaison = Canvas(window, width=50, height=40, bg='white')
-
+canvasusine = Canvas(window, width=50, height=50, bg='white')
 notenoughmoney = Label(window, text="monnaie insuffisante !", font= ("Arial", 20), bg='white', fg='red')
 mairie = PhotoImage(file='Mairie.png').subsample(4)
 bonhomme = PhotoImage(file='Stick.png').subsample(15)
+bonhomme_img = canvas.create_image(37, 37, image=bonhomme)
 housepicture = PhotoImage(file='House.png').subsample(15)
 usine = PhotoImage(file='Usine.png').subsample(15)
+
 moneyvalue = 0
 moneydisplay = Label(window, text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
 old_x, old_y = 0, 0
 revenu = 500
 price = 5000
 
+def gauche(event):
+    canvas.move(bonhomme_img, -10, 0)
+
+    
+
+def droite(event):
+    canvas.move(bonhomme_img, 10, 0)
+
+    
+
+def deplacement():
+    window.bind("<Left>", gauche)
+    window.bind("<Right>", droite)
+
+
+def house():
+    global moneyvalue
+    if moneyvalue < 3000:    
+        notenoughmoney.place(x=425, y=275)
+        notenoughmoney.after(2000, destroytext)
+
+    else: 
+        window.bind("<Button-1>", clic_house)
+        
+        moneyvalue -= 3000
+        moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
+
+        
+        moneydisplay.after(3000, cooldown)
+
+maisonbutton = Button(window, text="Placer une maison (3000$)", command=house)
 
 def clickerf():
     global moneyvalue
@@ -35,7 +69,7 @@ def clickerf():
     moneydisplay.place(x=850, y=0)
     
 
-def clic(event):
+def clic_house(event):
     
     global old_x, old_y
     old_x = event.x
@@ -43,14 +77,18 @@ def clic(event):
     canvasmaison.place(x=event.x, y=event.y)
     canvasmaison.create_image(25, 22, image=housepicture)
     window.unbind("<Button-1>")
+    maisonbutton.destroy()
+
     
 def clic_factory(event):
     global old_x, old_y
     old_x = event.x
     old_y = event.y
-    canvasmaison.place(x=event.x, y=event.y)
-    canvasmaison.create_image(25, 22, image=usine)
+    canvasusine.place(x=event.x, y=event.y)
+    canvasusine.create_image(25, 22, image=usine)
     window.unbind("<Button-1>")
+    usinebutton.destroy()
+    
 
 def destroytext():
     notenoughmoney.place_forget()
@@ -67,23 +105,9 @@ def cooldownusine():
     moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
     moneydisplay.after(5000, cooldownusine)
 
-def house():
-    global moneyvalue
-    if moneyvalue < 3000:    
-        notenoughmoney.place(x=425, y=275)
-        notenoughmoney.after(2000, destroytext)
 
-    elif moneyvalue >= 3000: 
-        window.bind("<Button-1>", clic)
-        
-        moneyvalue -= 3000
-        moneydisplay.configure(text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
-
-        
-        moneydisplay.after(3000, cooldown)
         
 def factory():
-    count2 = 0
     global moneyvalue
     if moneyvalue < 10000:    
         notenoughmoney.place(x=425, y=275)
@@ -98,6 +122,9 @@ def factory():
 
         
         moneydisplay.after(3000, cooldownusine)
+
+usinebutton = Button(window, text="Placer l'usine (10 000$)", command=factory)
+
 def ameliorer():
     global price
     global moneyvalue
@@ -124,18 +151,17 @@ def game_start():
     first_button.destroy()
     label_title.destroy()
     label_subtitle.destroy()
+   
     window.config(background = '#FFFFFF')
     canvas.place(x=440, y=275)
     canvasmairie.place(x=500, y=275)
     canvasmairie.create_image(40, 30, image = mairie)
-    canvas.create_image(37, 37, image=bonhomme)
+    
+    deplacement()
     clicker = Button(window, text="Make money", command= clickerf)
     clicker.place(x=500, y=345)
-    
     levelup.place(x=500, y=375)
-    maison = Button(window, text="Placer une maison (3000$)", command=house)
-    maison.place(x=920, y=690)
-    usinebutton = Button(window, text="Placer l'usine (10 000$)", command=factory)
+    maisonbutton.place(x=920, y=690)
     usinebutton.place(x=700, y=690)
     
 
