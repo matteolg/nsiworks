@@ -1,9 +1,7 @@
-from smtplib import OLDSTYLE_AUTH
 from tkinter import *
 from random import *
 from sys import *
 from time import *
-from turtle import window_height, window_width
 
 # Lignes nécéssaires au lancement du programme :
 window = Tk()
@@ -12,17 +10,18 @@ window.geometry("1080x720")
 window.minsize(480, 360)
 window.config(background = '#2978E3')
 
-canvas = Canvas(window, width=window.winfo_reqwidth(), height=360, bg='white')
+canvas = Canvas(window, width=1080, height=720, bg='white')
 canvasmairie = Canvas(window, width=70, height=60, bg='white')
 canvasmaison = Canvas(window, width=50, height=40, bg='white')
 canvasusine = Canvas(window, width=50, height=50, bg='white')
 notenoughmoney = Label(window, text="monnaie insuffisante !", font= ("Arial", 20), bg='white', fg='red')
 mairie = PhotoImage(file='Mairie.png').subsample(4)
+mairie_img = canvasmairie.create_image(40, 30, image = mairie)
 bonhomme = PhotoImage(file='Stick.png').subsample(15)
 bonhomme_img = canvas.create_image(37, 37, image=bonhomme)
-housepicture = PhotoImage(file='House.png').subsample(15)
-usine = PhotoImage(file='Usine.png').subsample(15)
+house = PhotoImage(file='House.png').subsample(15)
 
+usine = PhotoImage(file='Usine.png').subsample(15)
 moneyvalue = 0
 moneydisplay = Label(window, text=(moneyvalue, "$"), font= ("Arial", 40), bg='white', fg='black')
 old_x, old_y = 0, 0
@@ -30,21 +29,53 @@ revenu = 500
 price = 5000
 
 def gauche(event):
-    canvas.move(bonhomme_img, -10, 0)
+    x = -10
+    y = 0
+    if (canvas.coords(bonhomme_img)[0]<27):
+        canvas.move(bonhomme_img, 0, x)
+    else:
+        canvas.move(bonhomme_img, x, y)
 
     
-
 def droite(event):
-    canvas.move(bonhomme_img, 10, 0)
+    x = 10
+    y = 0
+    if (canvas.coords(bonhomme_img)[0]>1057):
+        canvas.move(bonhomme_img, 0, x)
+    else:
+        canvas.move(bonhomme_img, x, y)
 
-    
+def haut(event):
+    x = 0
+    y = -10
+    if (canvas.coords(bonhomme_img)[1]<37):
+        canvas.move(bonhomme_img, x, 0)
+    else:
+        canvas.move(bonhomme_img, x, y)
+
+def bas(event):
+    x = 0
+    y = 10
+    if (canvas.coords(bonhomme_img)[1]>687):
+        canvas.move(bonhomme_img, x, 0)
+    else:
+        canvas.move(bonhomme_img, x, y)
 
 def deplacement():
     window.bind("<Left>", gauche)
     window.bind("<Right>", droite)
+    window.bind("<Up>", haut)
+    window.bind("<Down>", bas)
 
 
-def house():
+def ameliorer(event):
+    ky = canvasmaison.coords(house_img)
+    print(ky)
+    if (canvas.coords(bonhomme_img)[0]==canvasmaison.coords(house_img)[0]):
+        print("hello")
+
+
+def houseset():
     global moneyvalue
     if moneyvalue < 3000:    
         notenoughmoney.place(x=425, y=275)
@@ -59,7 +90,7 @@ def house():
         
         moneydisplay.after(3000, cooldown)
 
-maisonbutton = Button(window, text="Placer une maison (3000$)", command=house)
+maisonbutton = Button(window, text="Placer une maison (3000$)", command=houseset)
 
 def clickerf():
     global moneyvalue
@@ -70,12 +101,13 @@ def clickerf():
     
 
 def clic_house(event):
-    
+    global house_img
     global old_x, old_y
     old_x = event.x
     old_y = event.y
     canvasmaison.place(x=event.x, y=event.y)
-    canvasmaison.create_image(25, 22, image=housepicture)
+    house_img = canvasmaison.create_image(25, 22, image = house)
+    ameliorer(event)
     window.unbind("<Button-1>")
     maisonbutton.destroy()
 
@@ -125,7 +157,7 @@ def factory():
 
 usinebutton = Button(window, text="Placer l'usine (10 000$)", command=factory)
 
-def ameliorer():
+def ameliorer_mairie():
     global price
     global moneyvalue
     global revenu
@@ -151,11 +183,11 @@ def game_start():
     first_button.destroy()
     label_title.destroy()
     label_subtitle.destroy()
-   
+    
     window.config(background = '#FFFFFF')
-    canvas.place(x=440, y=275)
+    canvas.place(x=0, y=0)
     canvasmairie.place(x=500, y=275)
-    canvasmairie.create_image(40, 30, image = mairie)
+    
     
     deplacement()
     clicker = Button(window, text="Make money", command= clickerf)
@@ -165,7 +197,7 @@ def game_start():
     usinebutton.place(x=700, y=690)
     
 
-levelup = Button(window, text="Améliorer ("+str(price)+"$)", command=ameliorer)
+levelup = Button(window, text="Améliorer ("+str(price)+"$)", command=ameliorer_mairie)
 
 
 frame = Frame(window, bg='#2978E3', bd=10, relief=SUNKEN)
@@ -178,7 +210,6 @@ label_subtitle.pack()
 
 first_button = Button(frame, text="Lancer la partie", font= ("Arial", 25), bg='white', fg='#2978E3', command=game_start)
 first_button.pack(side=BOTTOM, pady=25)
-
 frame.pack(expand=YES)
 
 window.mainloop()
